@@ -19,9 +19,20 @@ npm install -g claudes
 Or clone and link locally:
 
 ```bash
-git clone https://github.com/scottyeck/claudes
-cd claudes
+git clone https://github.com/scottyeck/claude-sessions
+cd claude-sessions
+npm install
+npm run build
 npm link
+```
+
+## Development
+
+```bash
+npm install          # Install dependencies
+npm run build        # Build TypeScript to dist/
+npm run dev          # Watch mode for development
+npm start            # Run the built CLI
 ```
 
 ## Usage
@@ -64,6 +75,21 @@ claudes --list
 2. Reads session data from `~/.claude/projects/`
 3. Correlates processes to tmux panes via TTY matching
 4. Provides navigation to jump between sessions
+
+## Project Structure
+
+```
+src/
+├── index.ts    # Entry point
+├── cli.ts      # CLI argument parsing
+├── tui.ts      # Interactive TUI
+├── render.ts   # Rendering functions
+├── session.ts  # Session data collection
+├── process.ts  # Process discovery
+├── tmux.ts     # tmux integration
+├── exec.ts     # Shell execution helper
+└── types.ts    # TypeScript types
+```
 
 ## License
 

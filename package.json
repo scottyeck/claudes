@@ -3,11 +3,16 @@
   "version": "1.0.0",
   "description": "Interactive CLI for managing Claude Code instances with tmux navigation",
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
-    "claudes": "./claudes.mjs"
+    "claudes": "./dist/index.js"
   },
   "scripts": {
-    "start": "node claudes.mjs"
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "claude",
@@ -26,6 +31,13 @@
     "url": "https://github.com/scottyeck/claude-sessions"
   },
   "files": [
-    "claudes.mjs"
-  ]
+    "dist"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "commander": "^14.0.2"
+  }
 }
