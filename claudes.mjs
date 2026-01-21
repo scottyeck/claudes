@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 //
-// claude-sessions - Interactive CLI for managing Claude Code instances
+// claudes - Interactive CLI for managing Claude Code instances
 //
 // Features:
 // - Show status of all running Claude Code instances
@@ -8,10 +8,10 @@
 // - Jump to any session's tmux pane
 //
 // Usage:
-//   claude-sessions          - Launch interactive TUI
-//   claude-sessions 2        - Jump directly to session #2
-//   claude-sessions cloud    - Jump to first project matching "cloud"
-//   claude-sessions --list   - Non-interactive list (original behavior)
+//   claudes          - Launch interactive TUI
+//   claudes 2        - Jump directly to session #2
+//   claudes cloud    - Jump to first project matching "cloud"
+//   claudes --list   - Non-interactive list (original behavior)
 //
 
 import { execSync } from "child_process";
@@ -483,14 +483,14 @@ function parseArgs() {
 
 function showHelp() {
   console.log(`
-claude-sessions - Interactive CLI for managing Claude Code instances
+claudes - Interactive CLI for managing Claude Code instances
 
 Usage:
-  claude-sessions              Launch interactive TUI
-  claude-sessions <number>     Jump directly to session #N
-  claude-sessions <name>       Jump to first project matching name
-  claude-sessions --list       Non-interactive list output
-  claude-sessions --help       Show this help message
+  claudes              Launch interactive TUI
+  claudes <number>     Jump directly to session #N
+  claudes <name>       Jump to first project matching name
+  claudes --list       Non-interactive list output
+  claudes --help       Show this help message
 
 TUI Navigation:
   j/k or ↑/↓    Move selection up/down
