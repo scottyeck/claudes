@@ -1,0 +1,63 @@
+#!/bin/bash
+#
+# claude-sessions - Show status of all running Claude Code instances
+#
+# Displays: status, PID, CPU, uptime, project directory, and conversation context
+#
+
+lsof -c claude 2>/dev/null | awk '$4 == "cwd" {print $2, $NF}' | while read pid cwd; do
+  project_path=$(echo "$cwd" | sed 's|/|-|g')
+  project_dir="$HOME/.claude/projects/$project_path"
+
+  stats=$(ps -p "$pid" -o %cpu=,etime= 2>/dev/null | xargs)
+  cpu=$(echo "$stats" | awk '{print $1}')
+  runtime=$(echo "$stats" | awk '{print $2}')
+
+  first_prompt=""
+  last_prompt=""
+
+  if [ -d "$project_dir" ]; then
+    session_file=$(ls -t "$project_dir"/*.jsonl 2>/dev/null | head -1)
+    if [ -n "$session_file" ]; then
+      session_id=$(basename "$session_file" .jsonl)
+      index_file="$project_dir/sessions-index.json"
+
+      # Try sessions-index.json first
+      if [ -f "$index_file" ]; then
+        first_prompt=$(jq -r --arg sid "$session_id" \
+          '.entries[] | select(.sessionId == $sid) | .firstPrompt // ""' \
+          "$index_file" 2>/dev/null | head -1)
+        [ "$first_prompt" = "null" ] || [ "$first_prompt" = "No prompt" ] && first_prompt=""
+      fi
+
+      # Get clean user messages from jsonl
+      clean_msgs=$(grep '"type":"user"' "$session_file" 2>/dev/null | \
+        jq -r 'select(.message.content | type == "string") | .message.content' 2>/dev/null | \
+        sed 's/^[[:space:]]*//' | \
+        grep -vE "^<|^\[|^$")
+
+      [ -z "$first_prompt" ] && first_prompt=$(echo "$clean_msgs" | head -1)
+      last_prompt=$(echo "$clean_msgs" | tail -1)
+
+      first_prompt=$(echo "$first_prompt" | tr '\n' ' ' | sed 's/  */ /g' | cut -c1-65)
+      last_prompt=$(echo "$last_prompt" | tr '\n' ' ' | sed 's/  */ /g' | cut -c1-65)
+    fi
+  fi
+
+  # Determine status based on CPU usage
+  if [ "$(echo "$cpu > 5" | bc -l)" -eq 1 ]; then
+    state="🔄 ACTIVE"
+  else
+    state="💤 IDLE"
+  fi
+
+  echo "═══════════════════════════════════════════════════════════════════"
+  printf "%s | PID %-5s | CPU %5s%% | Up %s\n" "$state" "$pid" "$cpu" "$runtime"
+  echo "📁 $(basename "$cwd")"
+  [ -n "$first_prompt" ] && echo "🚀 $first_prompt"
+  if [ -n "$last_prompt" ] && [ "$last_prompt" != "$first_prompt" ]; then
+    echo "💬 $last_prompt"
+  fi
+done
+
+echo "═══════════════════════════════════════════════════════════════════"
