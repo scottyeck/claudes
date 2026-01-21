@@ -34,19 +34,22 @@ function exec(cmd) {
 
 function getTTYForPID(pid) {
   const output = exec(`ps -ho tty -p ${pid} 2>/dev/null`).trim();
-  if (!output || output === "??" || output === "-") return null;
+  // ps may output a header line, so get the last non-empty line
+  const lines = output.split("\n").filter((l) => l.trim());
+  const tty = lines[lines.length - 1]?.trim();
+  if (!tty || tty === "??" || tty === "-" || tty === "TTY") return null;
   // Normalize TTY format (e.g., "ttys001" -> "/dev/ttys001")
-  return output.startsWith("/dev/") ? output : `/dev/${output}`;
+  return tty.startsWith("/dev/") ? tty : `/dev/${tty}`;
 }
 
 function getTmuxPanes() {
-  const output = exec("tmux list-panes -aF '#{pane_tty}:#{pane_id}:#{session_name}' 2>/dev/null");
+  const output = exec("tmux list-panes -aF '#{pane_tty}:#{pane_id}:#{session_name}:#{window_index}' 2>/dev/null");
   const panes = [];
   for (const line of output.split("\n")) {
     if (!line.trim()) continue;
-    const [tty, paneId, sessionName] = line.split(":");
+    const [tty, paneId, sessionName, windowIndex] = line.split(":");
     if (tty && paneId && sessionName) {
-      panes.push({ tty, paneId, sessionName });
+      panes.push({ tty, paneId, sessionName, windowIndex });
     }
   }
   return panes;
@@ -61,7 +64,9 @@ function findTmuxPaneForPID(pid, tmuxPanes) {
 function jumpToTmuxPane(pane) {
   if (!pane) return false;
   try {
-    execSync(`tmux switch-client -t '${pane.sessionName}' 2>/dev/null`, { stdio: "pipe" });
+    // Select the window first, then the pane within it
+    const target = `${pane.sessionName}:${pane.windowIndex}`;
+    execSync(`tmux select-window -t '${target}' 2>/dev/null`, { stdio: "pipe" });
     execSync(`tmux select-pane -t '${pane.paneId}' 2>/dev/null`, { stdio: "pipe" });
     return true;
   } catch {
