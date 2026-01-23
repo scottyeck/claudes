@@ -19,8 +19,8 @@ npm install -g claudes
 Or clone and link locally:
 
 ```bash
-git clone https://github.com/scottyeck/claude-sessions
-cd claude-sessions
+git clone https://github.com/scottyeck/claudes
+cd claudes
 npm install
 npm run build
 npm link
