@@ -12,6 +12,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -35,7 +37,8 @@
   ],
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0"
   },
   "dependencies": {
     "commander": "^14.0.2"
