@@ -1,15 +1,39 @@
 #!/usr/bin/env node
 
+import { writeFileSync, mkdirSync } from "fs";
+import { homedir } from "os";
+import { join } from "path";
 import { parseArgs } from "./cli.js";
 import { renderList } from "./render.js";
 import { collectSessionData } from "./session.js";
 import { jumpToTmuxPane } from "./tmux.js";
 import { startTUI } from "./tui.js";
 
+const CACHE_FILE = join(homedir(), ".claude", "sessions-cache.json");
+
 function main(): void {
   const { options, target } = parseArgs();
 
   const sessions = collectSessionData();
+
+  if (options.updateCache) {
+    try {
+      mkdirSync(join(homedir(), ".claude"), { recursive: true });
+      const cacheData = {
+        updatedAt: new Date().toISOString(),
+        sessions,
+      };
+      writeFileSync(CACHE_FILE, JSON.stringify(cacheData, null, 2));
+    } catch {
+      // Silently fail - daemon should not produce output
+    }
+    process.exit(0);
+  }
+
+  if (options.json) {
+    console.log(JSON.stringify(sessions, null, 2));
+    process.exit(0);
+  }
 
   if (options.list) {
     renderList(sessions);

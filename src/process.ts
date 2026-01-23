@@ -4,7 +4,21 @@ import { exec } from "./exec.js";
 import type { ClaudeProcess, ProcessStats } from "./types.js";
 
 export function getClaudeProcesses(): ClaudeProcess[] {
-  const output = exec("lsof -c claude 2>/dev/null");
+  // Try lsof -c first (works in normal terminal)
+  let output = exec("/usr/sbin/lsof -c claude 2>/dev/null");
+
+  // Fallback: use pgrep + lsof -p (may work in sandboxed environments)
+  if (!output.trim()) {
+    const pids = exec("/usr/bin/pgrep -f 'claude' 2>/dev/null")
+      .trim()
+      .split("\n")
+      .filter((p) => p);
+
+    if (pids.length > 0) {
+      output = exec(`/usr/sbin/lsof -p ${pids.join(",")} 2>/dev/null`);
+    }
+  }
+
   const processes: ClaudeProcess[] = [];
 
   for (const line of output.split("\n")) {
@@ -12,7 +26,10 @@ export function getClaudeProcesses(): ClaudeProcess[] {
     if (parts[3] === "cwd") {
       const pid = parts[1];
       const cwd = parts[parts.length - 1];
-      processes.push({ pid, cwd });
+      // Only include actual claude processes (filter out this script, etc.)
+      if (parts[0]?.toLowerCase().includes("claude")) {
+        processes.push({ pid, cwd });
+      }
     }
   }
 

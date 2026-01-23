@@ -1,0 +1,51 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "claude-sessions",
+  "title": "Claude Sessions",
+  "description": "Browse and jump to Claude Code sessions",
+  "icon": "icon.png",
+  "author": "scottyeck",
+  "categories": [
+    "Developer Tools",
+    "Productivity"
+  ],
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "index",
+      "title": "Browse Claude Sessions",
+      "description": "List running Claude sessions and jump to them",
+      "mode": "view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "claudesPath",
+      "title": "Claudes CLI Path",
+      "description": "Path to the claudes CLI command (leave empty if globally installed)",
+      "type": "textfield",
+      "required": false,
+      "default": ""
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.104.0",
+    "@raycast/utils": "^1.19.0"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^1.0.11",
+    "@types/node": "22.13.10",
+    "@types/react": "19.0.10",
+    "eslint": "^8.57.0",
+    "prettier": "^3.3.3",
+    "react": "19.0.0",
+    "typescript": "^5.4.5"
+  },
+  "scripts": {
+    "build": "ray build -e dist",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "publish": "npx @raycast/api@latest publish"
+  }
+}
