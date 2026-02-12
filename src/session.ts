@@ -19,19 +19,20 @@ export function collectSessionData(): Session[] {
   const sessions: Session[] = [];
 
   for (const { pid, cwd } of processes) {
-    const projectPath = cwd.replace(/\//g, "-");
+    const projectPath = cwd.replace(/[/.]/g, "-");
     const projectDir = join(claudeDir, projectPath);
     const { cpu, runtime } = getProcessStats(pid);
     const tmuxPane = findTmuxPaneForPID(pid, tmuxPanes);
 
     let firstPrompt = "";
     let lastPrompt = "";
+    let sessionId = "";
 
     if (existsSync(projectDir)) {
       const sessionFile = getMostRecentSessionFile(projectDir);
 
       if (sessionFile) {
-        const sessionId = basename(sessionFile, ".jsonl");
+        sessionId = basename(sessionFile, ".jsonl");
         const indexFile = join(projectDir, "sessions-index.json");
 
         if (existsSync(indexFile)) {
@@ -57,6 +58,7 @@ export function collectSessionData(): Session[] {
       pid,
       cwd,
       projectName: basename(cwd),
+      sessionId,
       cpu,
       runtime,
       isActive,

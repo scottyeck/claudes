@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { writeFileSync, mkdirSync } from "fs";
+import { readFileSync, writeFileSync, mkdirSync } from "fs";
 import { homedir } from "os";
 import { join } from "path";
 import { parseArgs } from "./cli.js";
@@ -8,6 +8,7 @@ import { renderList } from "./render.js";
 import { collectSessionData } from "./session.js";
 import { jumpToTmuxPane } from "./tmux.js";
 import { startTUI } from "./tui.js";
+import type { Session } from "./types.js";
 
 const CACHE_FILE = join(homedir(), ".claude", "sessions-cache.json");
 
@@ -38,6 +39,30 @@ function main(): void {
   if (options.list) {
     renderList(sessions);
     process.exit(0);
+  }
+
+  if (options.sessionId) {
+    // Read from cache for --session-id since live tmux pane lookup
+    // may fail when invoked from outside a terminal context (e.g. notifications)
+    let cachedSessions = sessions;
+    try {
+      const cache = JSON.parse(readFileSync(CACHE_FILE, "utf-8"));
+      if (cache.sessions) cachedSessions = cache.sessions;
+    } catch {
+      // Fall back to live data
+    }
+    const match = cachedSessions.find((s: Session) => s.sessionId === options.sessionId);
+    if (match) {
+      if (match.tmuxPane && jumpToTmuxPane(match.tmuxPane)) {
+        process.exit(0);
+      } else {
+        console.error(`Session "${match.projectName}" has no tmux pane or jump failed.`);
+        process.exit(1);
+      }
+    } else {
+      console.error(`No session with ID "${options.sessionId}" found.`);
+      process.exit(1);
+    }
   }
 
   if (target) {

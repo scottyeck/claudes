@@ -19,6 +19,7 @@ export interface Session {
   pid: string;
   cwd: string;
   projectName: string;
+  sessionId: string;
   cpu: number;
   runtime: string;
   isActive: boolean;

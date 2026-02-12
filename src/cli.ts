@@ -5,6 +5,7 @@ export interface CliOptions {
   list?: boolean;
   json?: boolean;
   updateCache?: boolean;
+  sessionId?: string;
 }
 
 export interface ParsedArgs {
@@ -22,6 +23,7 @@ export function createProgram(): Command {
     .option("-l, --list", "Non-interactive list output")
     .option("-j, --json", "Output session data as JSON")
     .option("--update-cache", "Update the session cache file (for daemon use)")
+    .option("--session-id <id>", "Jump to session by session ID")
     .argument("[target]", "Session number or project name to jump to")
     .addHelpText(
       "after",
@@ -38,6 +40,7 @@ Examples:
   claudes              Launch interactive TUI
   claudes 2            Jump directly to session #2
   claudes cloud        Jump to first project matching "cloud"
+  claudes --session-id abc123  Jump to session by ID
   claudes --list       Non-interactive list output
   claudes --json       Output session data as JSON`
     );
