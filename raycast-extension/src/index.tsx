@@ -92,6 +92,7 @@ export default function Command() {
       // Navigate tmux
       execSync(`/opt/homebrew/bin/tmux select-window -t '${sessionName}:${windowIndex}'`);
       execSync(`/opt/homebrew/bin/tmux select-pane -t '${paneId}'`);
+      execSync(`/opt/homebrew/bin/tmux switch-client -t '${sessionName}'`);
 
       await showToast({ style: Toast.Style.Success, title: `Jumped to ${session.projectName}` });
     } catch (e) {

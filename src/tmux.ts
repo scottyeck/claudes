@@ -40,6 +40,7 @@ export function jumpToTmuxPane(pane: TmuxPane | null): boolean {
     const target = `${pane.sessionName}:${pane.windowIndex}`;
     execSync(`tmux select-window -t '${target}' 2>/dev/null`, { stdio: "pipe" });
     execSync(`tmux select-pane -t '${pane.paneId}' 2>/dev/null`, { stdio: "pipe" });
+    execSync(`tmux switch-client -t '${pane.sessionName}' 2>/dev/null`, { stdio: "pipe" });
     return true;
   } catch {
     return false;

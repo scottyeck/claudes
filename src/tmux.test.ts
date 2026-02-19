@@ -182,13 +182,17 @@ describe("jumpToTmuxPane", () => {
     };
 
     expect(jumpToTmuxPane(pane)).toBe(true);
-    expect(mockExecSync).toHaveBeenCalledTimes(2);
+    expect(mockExecSync).toHaveBeenCalledTimes(3);
     expect(mockExecSync).toHaveBeenCalledWith(
       "tmux select-window -t 'main:0' 2>/dev/null",
       { stdio: "pipe" }
     );
     expect(mockExecSync).toHaveBeenCalledWith(
       "tmux select-pane -t '%1' 2>/dev/null",
+      { stdio: "pipe" }
+    );
+    expect(mockExecSync).toHaveBeenCalledWith(
+      "tmux switch-client -t 'main' 2>/dev/null",
       { stdio: "pipe" }
     );
   });
